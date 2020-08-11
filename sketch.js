@@ -69,11 +69,27 @@ class Fish {
 
     draw() {
         if (this.archan) {
-            imageMode(CENTER);
+            // imageMode(CENTER);
         } else {
             imageMode(CORNER)
         }
         image(this.img, this.x, this.y, this.size, this.size)
+        stroke(255)
+        noFill()
+        // line(this.x + this.size/2, this.y, this.x + this.size/2 + 50, this.y + this.size)
+        let offset = -50;
+        if (this.speed < 0) {
+            offset = 50;
+        }
+        beginShape();
+        vertex(this.x + this.size/2 + offset, this.y + this.size)
+        vertex(this.x + this.size/2 + offset, this.y + this.size)
+        curveVertex(this.x + this.size/2, this.y);
+        curveVertex(this.x + (this.speed < 0 ? 0 : this.size), this.y + this.size/2)
+        curveVertex(this.x + this.size/2, this.y + this.size)
+        vertex(this.x + this.size/2 + offset, this.y)
+        vertex(this.x + this.size/2 + offset, this.y)
+        endShape();
     }
 
     update() {
@@ -100,7 +116,7 @@ class Fish {
         }
 
         this.x += this.speed
-        if (this.x > width) {
+        if (this.x > width && this.speed > 0)  {
             this.reset(false)
         } else if (this.x < -1*this.size) {
             this.reset(true);
@@ -133,7 +149,7 @@ class Fish {
             this.speed = random(1,3)
             // this.speed = 10
         } else {
-            this.x = width
+            this.x = width + this.size/2
             this.speed = this.archan ? -2 : this.bspeed;
             this.slope = 0;
         }
@@ -157,4 +173,9 @@ function getShape(size) {
     shape.clear();
     shape.circle(size/2,size/2,size - 5);
     return shape;
+}
+
+function keyPressed() {
+    console.log(keyCode == 32);
+    if (keyCode == 32) archanfish.highlight();
 }
