@@ -78,8 +78,11 @@ class Fish {
         noFill()
         // line(this.x + this.size/2, this.y, this.x + this.size/2 + 50, this.y + this.size)
         let offset = -50;
+        if (this.highlighted) {
+            offset = -150/120 * this.size;
+        }
         if (this.speed < 0) {
-            offset = 50;
+            offset *= -1;
         }
         beginShape();
         vertex(this.x + this.size/2 + offset, this.y + this.size)
@@ -113,6 +116,7 @@ class Fish {
 
         if (this.frazzled && sinceHighlight > (250 + this.delay) && !this.archan) {
             this.speed = this.bspeed
+            this.frazzled = false
         }
 
         this.x += this.speed
@@ -149,7 +153,7 @@ class Fish {
             this.speed = random(1,3)
             // this.speed = 10
         } else {
-            this.x = width + this.size/2
+            this.x = width
             this.speed = this.archan ? -2 : this.bspeed;
             this.slope = 0;
         }
