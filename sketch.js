@@ -9,7 +9,7 @@ let big = 150;
 
 function preload() {
   for (i = 0; i < 32; i++) {
-    for (n = 0; n < 2; n++) {
+    for (n = 0; n < 3; n++) {
       // num fish per person
       images.push(loadImage("assets/" + i + ".png"));
       images.push(loadImage("assets/" + i + ".png"));
@@ -50,7 +50,11 @@ class Fish {
     this.archan = archan;
     this.highlighted = false;
     this.init();
-    this.bspeed = random(-0.5, -2);
+    this.bspeed = random(2, -2);
+    this.yspeed = 0;
+    this.yoff = 0;
+    this.rotation = random(0, 360);
+    this.scattered = false;
   }
 
   init() {
@@ -80,6 +84,7 @@ class Fish {
     stroke(255);
     noFill();
     // line(this.x + this.size/2, this.y, this.x + this.size/2 + 50, this.y + this.size)
+    
     let offset = -50;
     if (this.highlighted) {
       offset = (-150 / 120) * this.size;
@@ -89,9 +94,15 @@ class Fish {
     }
     if (this.frazzled && sinceHighlight > 100 + this.delay) {
       rotate(random(-0.1,0.1));
-      translate(random(0,1), random(0,1))
+      translate(random(0,1), random(0,1));
     }
+    let xr = this.x + this.size/2, yr = this.y + this.size/2 //translate about center of image
     image(this.img, this.x, this.y, this.size, this.size);
+    if (this.scattered) {
+      translate(xr, yr);
+      rotate(this.rotation);
+      translate(-xr, -yr)
+    }
     beginShape();
     vertex(this.x + this.size / 2 + offset, this.y + this.size);
     vertex(this.x + this.size / 2 + offset, this.y + this.size);
@@ -104,7 +115,6 @@ class Fish {
     vertex(this.x + this.size / 2 + offset, this.y);
     vertex(this.x + this.size / 2 + offset, this.y);
     endShape();
-
 
     pop();
   }
@@ -129,10 +139,14 @@ class Fish {
 
     if (this.frazzled && sinceHighlight > 250 + this.delay && !this.archan) {
       this.speed = this.bspeed;
+      // this.yspeed = this.postyspeed;
       this.frazzled = false;
+      this.scattered = true;
+      this.yspeed = tan(this.rotation) * this.speed / 100
     }
 
     this.x += this.speed;
+    this.yoff += this.yspeed;
     if (this.x > width && this.speed > 0) {
       this.reset(false);
     } else if (this.x < -1 * this.size) {
@@ -141,9 +155,13 @@ class Fish {
     if (this.y > height + this.size || this.y < -1 * this.size) {
       this.reset(false);
     }
+    if (this.y > height + this.size) {
+      this.offset = 0;
+      this.yoff = 0;
+    }
     let sinInput = map(this.x - this.xoff, 0, width / 2, 0, 360); //cycles per turn controlled by n* width
     this.offset += this.slope;
-    this.y = 50 * sin(sinInput) + this.startY + this.offset;
+    this.y = 50 * sin(sinInput) + this.startY + this.offset + this.yoff;
     if (this.i == 1) {
       // console.log(sinInput);
       // console.log(this.y);
@@ -163,6 +181,7 @@ class Fish {
     if (!archan) {
       this.x = -1 * this.size;
       this.speed = random(1, 3);
+      this.slope = random(-1,1);
       // this.speed = 10
     } else {
       this.x = width;
